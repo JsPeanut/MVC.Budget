@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\MVC.Budget.JsPeanut.props" />
+</Project>
