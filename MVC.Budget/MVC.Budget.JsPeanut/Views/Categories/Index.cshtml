@@ -1,5 +1,11 @@
-﻿@model MVC.Budget.JsPeanut.Models.ViewModel.CategoryViewModel
+﻿@using MVC.Budget.JsPeanut.Areas.Identity.Data;
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@model MVC.Budget.JsPeanut.Models.ViewModel.CategoryViewModel
 @{
+    var userId = UserManager.GetUserId(User);
+    var user = UserManager.FindByIdAsync(userId).Result;
     ViewBag.Title = "Index";
 }
 
@@ -72,6 +78,7 @@
                             <br />
                             <label>Currency</label>
                             <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
+                            <input type="hidden" asp-for="Transaction.UserId" value="@userId"/>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -129,15 +136,132 @@
                     @{
                         if (category.Transactions != null && category.Transactions.FirstOrDefault()?.CurrencyNativeSymbol == string.Empty)
                         {
-                            <td>@category.CurrencyNativeSymbol @category.TotalValue</td>
+                            if (category.Name == "Food")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.FoodValue</td>
+                            }
+                            else if (category.Name == "Transportation")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.TransportationValue</td>
+                            }
+                            else if (category.Name == "Housing")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HousingValue</td>
+                            }
+                            else if (category.Name == "Utilities")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.UtilitiesValue</td>
+                            }
+                            else if (category.Name == "Subscriptions")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SubscriptionsValue</td>
+                            }
+                            else if (category.Name == "Healthcare")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HealthcareValue</td>
+                            }
+                            else if (category.Name == "Personal expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.ExpensesValue</td>
+                            }
+                            else if (category.Name == "Savings and investments")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SavingsValue</td>
+                            }
+                            else if (category.Name == "Debt payment")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.DebtPaymentValue</td>
+                            }
+                            else if (category.Name == "Miscellaneous expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.MiscellaneousValue</td>
+                            }
                         }
                         else if (category.Transactions != null)
                         {
-                            <td>@category.CurrencyNativeSymbol @category.TotalValue</td>
+                            if (category.Name == "Food")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.FoodValue</td>
+                            }
+                            else if (category.Name == "Transportation")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.TransportationValue</td>
+                            }
+                            else if (category.Name == "Housing")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HousingValue</td>
+                            }
+                            else if (category.Name == "Utilities")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.UtilitiesValue</td>
+                            }
+                            else if (category.Name == "Subscriptions")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SubscriptionsValue</td>
+                            }
+                            else if (category.Name == "Healthcare")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HealthcareValue</td>
+                            }
+                            else if (category.Name == "Personal expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.ExpensesValue</td>
+                            }
+                            else if (category.Name == "Savings and investments")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SavingsValue</td>
+                            }
+                            else if (category.Name == "Debt payment")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.DebtPaymentValue</td>
+                            }
+                            else if (category.Name == "Miscellaneous expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.MiscellaneousValue</td>
+                            }
                         }
                         else
                         {
-                            <td>@category.CurrencyNativeSymbol @category.TotalValue</td>
+                            if (category.Name == "Food")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.FoodValue</td>
+                            }
+                            else if (category.Name == "Transportation")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.TransportationValue</td>
+                            }
+                            else if (category.Name == "Housing")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HousingValue</td>
+                            }
+                            else if (category.Name == "Utilities")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.UtilitiesValue</td>
+                            }
+                            else if (category.Name == "Subscriptions")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SubscriptionsValue</td>
+                            }
+                            else if (category.Name == "Healthcare")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.HealthcareValue</td>
+                            }
+                            else if (category.Name == "Personal expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.ExpensesValue</td>
+                            }
+                            else if (category.Name == "Savings and investments")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.SavingsValue</td>
+                            }
+                            else if (category.Name == "Debt payment")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.DebtPaymentValue</td>
+                            }
+                            else if (category.Name == "Miscellaneous expenses")
+                            {
+                                <td>@user.CurrencyNativeSymbol @user.MiscellaneousValue</td>
+                            }
                         }
                     }
                 </tr>
@@ -198,6 +322,7 @@
                             <br />
                             <label>Currency</label>
                             <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
+                            <input type="hidden" asp-for="Transaction.UserId" value="@userId" />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -20,6 +20,7 @@ namespace MVC.Budget.JsPeanut.Models
         [Required]
         public string Description { get; set; }
         public int CategoryId { get; set; }
+        public string UserId { get; set; }
         public Category Category { get; set; }
     }
 }

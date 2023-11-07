@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\S\\Downloads\\Mvc Budget\\CodeReviews.MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj": {}
+    "C:\\Users\\S\\Downloads\\Budget personal repo\\MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj": {}
   },
   "projects": {
-    "C:\\Users\\S\\Downloads\\Mvc Budget\\CodeReviews.MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj": {
+    "C:\\Users\\S\\Downloads\\Budget personal repo\\MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\S\\Downloads\\Mvc Budget\\CodeReviews.MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj",
+        "projectUniqueName": "C:\\Users\\S\\Downloads\\Budget personal repo\\MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj",
         "projectName": "MVC.Budget.JsPeanut",
-        "projectPath": "C:\\Users\\S\\Downloads\\Mvc Budget\\CodeReviews.MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj",
+        "projectPath": "C:\\Users\\S\\Downloads\\Budget personal repo\\MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut.csproj",
         "packagesPath": "C:\\Users\\S\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\S\\Downloads\\Mvc Budget\\CodeReviews.MVC.Budget\\MVC.Budget.JsPeanut\\MVC.Budget.JsPeanut\\obj\\",
+        "outputPath": "C:\\Users\\S\\Downloads\\Budget personal repo\\MVC.Budget\\MVC.Budget.JsPeanut\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,6 +44,14 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.23, )"
+            },
+            "Microsoft.AspNetCore.Identity.UI": {
+              "target": "Package",
+              "version": "[6.0.23, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[7.0.11, )"
@@ -63,6 +71,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[7.0.11, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[6.0.16, )"
             },
             "RestSharp": {
               "target": "Package",

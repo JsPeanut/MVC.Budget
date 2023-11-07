@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using MVC.Budget.JsPeanut.Data;
 using MVC.Budget.JsPeanut.Services;
 using System.Globalization;
+using Microsoft.AspNetCore.Identity;
+using MVC.Budget.JsPeanut.Areas.Identity.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,17 @@ CultureInfo.DefaultThreadCurrentCulture = culture;
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/ ";
+})
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddTransient<CategoryService, CategoryService>();
 builder.Services.AddTransient<TransactionService, TransactionService>();
 builder.Services.AddTransient<JsonFileCurrencyService, JsonFileCurrencyService>();
@@ -40,11 +53,26 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();;
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "Categories",
     pattern: "{controller=Categories}/{action=Index}/{id?}");
+app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var roles = new[] { "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
 
 app.Run();

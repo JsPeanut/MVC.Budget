@@ -9,8 +9,15 @@ namespace MVC.Budget.JsPeanut.Services
         public decimal ConvertValueToCategoryCurrency(string transactionCurrencyCode, decimal transactionValue, string categoryCurrencyCode)
         {
             var client = new RestClient("http://api.exchangeratesapi.io/");
-            var requestUrl = "v1/latest?access_key=fa64348655a3b54b9d64101ab0de65dd&symbols=";
-            requestUrl = requestUrl + $"{transactionCurrencyCode}" + $",{categoryCurrencyCode}";
+            var requestUrl = "v1/latest?access_key=69b84dacef3c17cfd0da06b728d32c65&symbols=";
+            if (transactionCurrencyCode != null && categoryCurrencyCode != null) 
+            {
+                requestUrl = requestUrl + $"{transactionCurrencyCode}" + $",{categoryCurrencyCode}";
+            }
+            else
+            {
+                return 0;
+            }
             var request = new RestRequest(requestUrl);
             var response = client.ExecuteGet(request);
 

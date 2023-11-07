@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MVC.Budget.JsPeanut.Areas.Identity.Data;
 using MVC.Budget.JsPeanut.Data;
 using MVC.Budget.JsPeanut.Models;
 using MVC.Budget.JsPeanut.Models.ViewModel;
@@ -15,13 +17,15 @@ namespace MVC.Budget.JsPeanut.Controllers
         private readonly TransactionService _transactionService;
         private readonly JsonFileCurrencyService _jsonFileCurrencyService;
         private readonly CurrencyConverterService _currencyConverterService;
-        public TransactionsController(DataContext context, CategoryService categoryService, TransactionService transactionService, JsonFileCurrencyService jsonFileCurrencyService, CurrencyConverterService currencyConverterService)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public TransactionsController(DataContext context, CategoryService categoryService, TransactionService transactionService, JsonFileCurrencyService jsonFileCurrencyService, CurrencyConverterService currencyConverterService, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _categoryService = categoryService;
             _transactionService = transactionService;
             _jsonFileCurrencyService = jsonFileCurrencyService;
             _currencyConverterService = currencyConverterService;
+            _userManager = userManager;
         }
 
         public IActionResult Index(int id = -1, string name = "", string imageurl = "", string timeline = "", string searchStringForName = "", string filterByCategoryString = "", string filterByDateString = "")
@@ -124,7 +128,13 @@ namespace MVC.Budget.JsPeanut.Controllers
 
                 var categories = _categoryService.GetAllCategories();
                 var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
-                transactionCategory.TotalValue += transaction.Value;
+                //--------------
+                //transactionCategory.TotalValue += transaction.Value;
+
+
+
+                //--------------
+
 
                 var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
                 existingTransaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
