@@ -244,7 +244,7 @@ namespace MVC.Budget.JsPeanut.Controllers
             switch (categoryName)
             {
                 case "Food":
-                    user.FoodValue = user.FoodValue + transactionValue;
+                    user.FoodValue = transactionValue;
                     break;
                 case "Transportation":
                     user.TransportationValue += transactionValue;
