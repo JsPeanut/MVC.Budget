@@ -247,31 +247,31 @@ namespace MVC.Budget.JsPeanut.Controllers
                     user.FoodValue = transactionValue;
                     break;
                 case "Transportation":
-                    user.TransportationValue += transactionValue;
+                    user.TransportationValue = transactionValue;
                     break;
                 case "Housing":
-                    user.HousingValue += transactionValue;
+                    user.HousingValue = transactionValue;
                     break;
                 case "Utilities":
-                    user.UtilitiesValue += transactionValue;
+                    user.UtilitiesValue = transactionValue;
                     break;
                 case "Subscriptions":
-                    user.SubscriptionsValue += transactionValue;
+                    user.SubscriptionsValue = transactionValue;
                     break;
                 case "Healthcare":
-                    user.HealthcareValue += transactionValue;
+                    user.HealthcareValue = transactionValue;
                     break;
                 case "Personal expenses":
-                    user.ExpensesValue += transactionValue;
+                    user.ExpensesValue = transactionValue;
                     break;
                 case "Savings and investments":
-                    user.SavingsValue += transactionValue;
+                    user.SavingsValue = transactionValue;
                     break;
                 case "Debt payment":
-                    user.DebtPaymentValue += transactionValue;
+                    user.DebtPaymentValue = transactionValue;
                     break;
                 case "Miscellaneous expenses":
-                    user.MiscellaneousValue += transactionValue;
+                    user.MiscellaneousValue = transactionValue;
                     break;
             }
             _context.SaveChanges();
