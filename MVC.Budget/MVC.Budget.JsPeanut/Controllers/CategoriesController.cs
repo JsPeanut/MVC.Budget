@@ -28,17 +28,17 @@ namespace MVC.Budget.JsPeanut.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index(string timeline = "", string searchStringOne = "", string searchStringTwo = "")
+        public async Task<IActionResult> Index(string timeline = "", string searchStringOne = "", string searchStringTwo = "")
         {
             var userId = _userManager.GetUserId(User);
-            var user = _userManager.FindByIdAsync(userId).Result;
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
             }
 
-            var categories = _categoryService.GetAllCategories();
+			var categories = _categoryService.GetAllCategories();
             var transactions = _transactionService.GetAllTransactions();
 
             if (!string.IsNullOrEmpty(timeline))
@@ -114,28 +114,18 @@ namespace MVC.Budget.JsPeanut.Controllers
                 NativeSymbol = user.CurrencyNativeSymbol,
                 Name = string.Empty
             };
-            //Currency currencyObject = new Currency
-            //{
-            //    CurrencyCode = user?.CurrencyCode ?? "",
-            //    NativeSymbol = user?.CurrencyNativeSymbol ?? "",
-            //    Name = string.Empty
-            //};
             ViewBag.Currency = currencyObject.CurrencyCode;
             var currencyObjectJson = JsonSerializer.Serialize<Currency>(currencyObject);
-            UpdateCurrency(currencyObjectJson, transactions);
+            await UpdateCurrency(currencyObjectJson, transactions);
 
             return View(categoriesviewmodel);
         }
 
         [HttpPost]
-        public IActionResult UpdateCurrency(string selectedCurrency, List<Transaction> sortedTransactions = null)
+        public async Task<IActionResult> UpdateCurrency(string selectedCurrency, List<Transaction> sortedTransactions = null)
         {
             var userId = _userManager.GetUserId(User);
-            var findUserTask = _userManager.FindByIdAsync(userId);
-
-            Task.WaitAll(findUserTask);
-
-            var user = findUserTask.Result;
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
@@ -181,7 +171,7 @@ namespace MVC.Budget.JsPeanut.Controllers
                 totalValue = Decimal.Round(totalValue, 2);
 
                 //updatedCategory.TotalValue = totalValue;
-                ChangeUserCategoryValue(user, updatedCategory.Name, totalValue).Wait();
+                await ChangeUserCategoryValue(user, updatedCategory.Name, totalValue);
 
                 _categoryService.UpdateCategory(updatedCategory);
             }
@@ -189,55 +179,57 @@ namespace MVC.Budget.JsPeanut.Controllers
             return Redirect("https://localhost:7229");
         }
 
-        public IActionResult AddTransaction(Models.Transaction transaction, CategoryViewModel cvm)
+        public async Task<IActionResult> AddTransaction(Models.Transaction transaction, CategoryViewModel cvm)
         {
-            var userId = transaction.UserId;
-            var findUserTask = _userManager.FindByIdAsync(userId);
-
-            Task.WaitAll(findUserTask);
-
-            var user = findUserTask.Result;
-
-            if (user == null)
+            try
             {
-                return RedirectToPage("/Account/Login", new { area = "Identity" });
+                var userId = transaction.UserId;
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return RedirectToPage("/Account/Login", new { area = "Identity" });
+                }
+
+                decimal transactionValue = decimal.Parse(transaction.Value.ToString());
+
+                var categories = _categoryService.GetAllCategories();
+                var transactions = _transactionService.GetAllTransactions();
+
+                var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
+
+                var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
+
+                transaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
+                transaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
+
+                _transactionService.AddTransaction(transaction);
+
+                await ChangeUserCategoryValue(user, transactionCategory.Name, transactionValue);
+
+                user = await _userManager.FindByIdAsync(userId);
+
+                Currency currencyObject = new Currency
+                {
+                    CurrencyCode = user.CurrencyCode,
+                    NativeSymbol = user.CurrencyNativeSymbol,
+                    Name = string.Empty
+                };
+
+                string currencyJson = JsonSerializer.Serialize(currencyObject);
+
+                await UpdateCurrency(currencyJson);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+                return View("Index");
             }
 
-            decimal transactionValue = transaction.Value;
+            TempData["success"] = "Category saved successfully";
 
-            transactionValue = decimal.Parse(transactionValue.ToString());
-
-            var categories = _categoryService.GetAllCategories();
-            var transactions = _transactionService.GetAllTransactions();
-
-            var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
-
-            //transactionCategory.TotalValue += transaction.Value;
-
-            var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
-
-            transaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
-            transaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
-
-            _transactionService.AddTransaction(transaction);
-            _context.SaveChanges();
-
-            ChangeUserCategoryValue(user, transactionCategory.Name, transactionValue).Wait();
-
-            user = findUserTask.Result;
-
-            Currency currencyObject = new Currency
-            {
-                CurrencyCode = user.CurrencyCode,
-                NativeSymbol = user.CurrencyNativeSymbol,
-                Name = string.Empty
-            };
-
-            string currencyJson = JsonSerializer.Serialize(currencyObject);
-            UpdateCurrency(currencyJson);
-
-            return Redirect("https://localhost:7229");
-        }
+			return RedirectToAction("Index", "Categories");
+		}
 
         public async Task ChangeUserCategoryValue(ApplicationUser user, string categoryName, decimal transactionValue)
         {

@@ -31,6 +31,7 @@ builder.Services.AddTransient<CategoryService, CategoryService>();
 builder.Services.AddTransient<TransactionService, TransactionService>();
 builder.Services.AddTransient<JsonFileCurrencyService, JsonFileCurrencyService>();
 builder.Services.AddTransient<CurrencyConverterService, CurrencyConverterService>();
+
 var app = builder.Build();
 
 

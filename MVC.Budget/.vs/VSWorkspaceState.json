@@ -3,8 +3,11 @@
     "",
     "\\MVC.Budget.JsPeanut",
     "\\MVC.Budget.JsPeanut\\Controllers",
-    "\\MVC.Budget.JsPeanut\\Services"
+    "\\MVC.Budget.JsPeanut\\Services",
+    "\\MVC.Budget.JsPeanut\\Views",
+    "\\MVC.Budget.JsPeanut\\Views\\Categories",
+    "\\MVC.Budget.JsPeanut\\Views\\Shared"
   ],
-  "SelectedNode": "\\MVC.Budget.JsPeanut\\Controllers\\CategoriesController.cs",
+  "SelectedNode": "\\MVC.Budget.JsPeanut\\Views\\Categories\\Index.cshtml",
   "PreviewInSolutionExplorer": false
 }

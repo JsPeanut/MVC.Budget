@@ -174,3 +174,7 @@ body {
 #transactionErrorNotification{
     margin-top: 22px;
 }
+
+.errorMessage{
+    color: red;
+}
