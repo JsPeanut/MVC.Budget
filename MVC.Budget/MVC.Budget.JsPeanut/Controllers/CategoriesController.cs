@@ -28,7 +28,7 @@ namespace MVC.Budget.JsPeanut.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string timeline = "", string searchStringOne = "", string searchStringTwo = "")
+        public async Task<IActionResult> Index(string timeline = "", string searchStringOne = "", string searchStringTwo = "", bool showUpdatedCurrencyToastr = true)
         {
             var userId = _userManager.GetUserId(User);
             var user = await _userManager.FindByIdAsync(userId);
@@ -39,7 +39,7 @@ namespace MVC.Budget.JsPeanut.Controllers
             }
 
 			var categories = _categoryService.GetAllCategories();
-            var transactions = _transactionService.GetAllTransactions();
+            var transactions = _transactionService.GetAllTransactions().Where(t => t.UserId == userId).ToList();
 
             if (!string.IsNullOrEmpty(timeline))
             {
@@ -116,73 +116,107 @@ namespace MVC.Budget.JsPeanut.Controllers
             };
             ViewBag.Currency = currencyObject.CurrencyCode;
             var currencyObjectJson = JsonSerializer.Serialize<Currency>(currencyObject);
-            await UpdateCurrency(currencyObjectJson, transactions);
+            if (!showUpdatedCurrencyToastr)
+            {
+				await UpdateCurrency(currencyObjectJson, "crud", transactions);
+			}
+            else if (showUpdatedCurrencyToastr)
+            {
+				await UpdateCurrency(currencyObjectJson, "update", transactions);
+			}
 
             return View(categoriesviewmodel);
         }
 
+        //updateOrCrud parameter is used so that if the method is called after performing a CUD operation (to update category values), no notifications about currency updating are shown
         [HttpPost]
-        public async Task<IActionResult> UpdateCurrency(string selectedCurrency, List<Transaction> sortedTransactions = null)
-        {
-            var userId = _userManager.GetUserId(User);
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return RedirectToPage("/Account/Login", new { area = "Identity" });
-            }
-
-            var categories = _categoryService.GetAllCategories();
-            List<Transaction> transactions = new();
-            if (sortedTransactions != null)
-            {
-                transactions = sortedTransactions;
-            }
-            else
-            {
-                transactions = _transactionService.GetAllTransactions();
-            }
-            var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(selectedCurrency);
-            foreach (var category in categories)
-            {
-                var updatedCategory = category;
-                //updatedCategory.CurrencyCode = selectedCurrencyOption.CurrencyCode;
-                //updatedCategory.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
-                user.CurrencyCode = selectedCurrencyOption.CurrencyCode;
-                user.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
-
-                decimal totalValue = 0;
-
-                var transactionsWhereCategoryIsEqualToLoopsCategory = transactions.Where(x => x.CategoryId == category.Id && x.UserId == userId);
-                foreach (var transaction in transactionsWhereCategoryIsEqualToLoopsCategory)
-                {
-                    if (transaction.CurrencyCode == user.CurrencyCode)
-                    {
-                        totalValue += transaction.Value;
-                    }
-                    else
-                    {
-                        decimal conversionResult = _currencyConverterService.ConvertValueToCategoryCurrency(transaction.CurrencyCode, transaction.Value, user.CurrencyCode);
-
-                        totalValue += conversionResult;
-                    }
-                }
-
-                totalValue = Decimal.Round(totalValue, 2);
-
-                //updatedCategory.TotalValue = totalValue;
-                await ChangeUserCategoryValue(user, updatedCategory.Name, totalValue);
-
-                _categoryService.UpdateCategory(updatedCategory);
-            }
-
-            return Redirect("https://localhost:7229");
-        }
-
-        public async Task<IActionResult> AddTransaction(Models.Transaction transaction, CategoryViewModel cvm)
+        public async Task<IActionResult> UpdateCurrency(string selectedCurrency, string updateOrCrud, List<Transaction> sortedTransactions = null)
         {
             try
             {
+				var userId = _userManager.GetUserId(User);
+				var user = await _userManager.FindByIdAsync(userId);
+
+				if (user == null)
+				{
+					return RedirectToPage("/Account/Login", new { area = "Identity" });
+				}
+
+				var categories = _categoryService.GetAllCategories();
+				var transactions = sortedTransactions ?? _transactionService.GetAllTransactions();
+
+				var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(selectedCurrency);
+				foreach (var category in categories)
+				{
+					user.CurrencyCode = selectedCurrencyOption.CurrencyCode;
+					user.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
+
+					decimal totalValue = 0;
+
+					var transactionsWhereCategoryIsEqualToLoopsCategory = transactions.Where(x => x.CategoryId == category.Id && x.UserId == userId);
+					foreach (var transaction in transactionsWhereCategoryIsEqualToLoopsCategory)
+					{
+						if (transaction.CurrencyCode == user.CurrencyCode)
+						{
+							totalValue += transaction.Value;
+						}
+						else
+						{
+							decimal conversionResult = _currencyConverterService.ConvertValueToCategoryCurrency(transaction.CurrencyCode, transaction.Value, user.CurrencyCode);
+
+							totalValue += conversionResult;
+						}
+					}
+
+					totalValue = Decimal.Round(totalValue, 2);
+
+					await ChangeUserCategoryValue(user, category.Name, totalValue);
+
+					_categoryService.UpdateCategory(category);
+				}
+			}
+            catch (Exception ex)
+            {
+                TempData["error"] = $"Something went wrong while trying to update your default currency. Error: {ex.Message}";
+
+				return RedirectToAction("Index", "Categories", new {showUpdatedCurrencyToastr = false});
+			}
+
+            if (updateOrCrud == "update")
+            {
+                TempData["success"] = "Your default currency was updated successfully!";
+			}
+            
+            return Redirect("https://localhost:7229");
+        }
+
+        public async Task<IActionResult> AddTransaction(Models.TransactionInputModel transactionInputModel, CategoryViewModel cvm)
+        {
+            ModelState.Remove("Categories");
+			ModelState.Remove("Transactions");
+			ModelState.Remove("CategorySelectList");
+			ModelState.Remove("CurrencySelectList");
+			ModelState.Remove("CurrentUser");
+			ModelState.Remove("CurrencyObjectJson");
+			if (!ModelState.IsValid)
+            {
+                TempData["error"] = "Something went wrong, your transaction wasn't added";
+
+				return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
+			}
+            try
+            {
+                var transaction = new Transaction
+                {
+                    Id = transactionInputModel.Id,
+                    Date = transactionInputModel.Date,
+                    Name = transactionInputModel.Name,
+                    CategoryId = transactionInputModel.CategoryId,
+                    Value = transactionInputModel.Value,
+                    Description = transactionInputModel.Description,
+                    UserId = transactionInputModel.UserId
+                };
+
                 var userId = transaction.UserId;
                 var user = await _userManager.FindByIdAsync(userId);
 
@@ -212,26 +246,26 @@ namespace MVC.Budget.JsPeanut.Controllers
                 Currency currencyObject = new Currency
                 {
                     CurrencyCode = user.CurrencyCode,
-                    NativeSymbol = user.CurrencyNativeSymbol,
-                    Name = string.Empty
+                    NativeSymbol = user.CurrencyNativeSymbol
                 };
 
                 string currencyJson = JsonSerializer.Serialize(currencyObject);
 
-                await UpdateCurrency(currencyJson);
+                await UpdateCurrency(currencyJson, "crud");
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = ex.Message;
-                return View("Index");
-            }
+				TempData["error"] = $"Something went wrong, your transaction wasn't added. Error: {ex.Message}";
 
-            TempData["success"] = "Category saved successfully";
+				return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
+			}
 
-			return RedirectToAction("Index", "Categories");
+            TempData["success"] = "Transaction added successfully!";
+
+			return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
 		}
 
-        public async Task ChangeUserCategoryValue(ApplicationUser user, string categoryName, decimal transactionValue)
+		public async Task ChangeUserCategoryValue(ApplicationUser user, string categoryName, decimal transactionValue)
         {
             switch (categoryName)
             {
@@ -266,7 +300,6 @@ namespace MVC.Budget.JsPeanut.Controllers
                     user.MiscellaneousValue = transactionValue;
                     break;
             }
-            _context.SaveChanges();
             await _userManager.UpdateAsync(user);
         }
     }

@@ -28,10 +28,19 @@ namespace MVC.Budget.JsPeanut.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index(int id = -1, string name = "", string imageurl = "", string timeline = "", string searchStringForName = "", string filterByCategoryString = "", string filterByDateString = "")
+        public async Task<IActionResult> Index(int id = -1, string name = "", string imageurl = "", string timeline = "", string searchStringForName = "", string filterByCategoryString = "", string filterByDateString = "")
         {
-            List<Transaction> transactions = _transactionService.GetAllTransactions();
-            if (!string.IsNullOrEmpty(timeline))
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+
+			if (user == null)
+			{
+				return RedirectToPage("/Account/Login", new { area = "Identity" });
+			}
+
+            var transactions = _transactionService.GetAllTransactions().Where(t => t.UserId == userId).ToList();
+
+			if (!string.IsNullOrEmpty(timeline))
             {
                 switch (timeline)
                 {
@@ -46,7 +55,6 @@ namespace MVC.Budget.JsPeanut.Controllers
                         break;
                 }
             }
-            
             if (!string.IsNullOrEmpty(searchStringForName))
             {
                 transactions = transactions.Where(x => x.Name.Contains(searchStringForName)).ToList();
@@ -68,11 +76,13 @@ namespace MVC.Budget.JsPeanut.Controllers
                     transactions = transactions.Where(x => x.Date.Date == searchDate.Date).ToList();
                 }
             }
-            List<Transaction> transactionsToShow = new();
-            var categories = _context.Categories.ToList();
+
+            var transactionsToShow = new List<Transaction>();
+            var categories = _categoryService.GetAllCategories();
             var currencies = _jsonFileCurrencyService.GetCurrencyList();
             var categoryselectlist_ = new List<SelectListItem>();
             var currencyselectlist_ = new List<SelectListItem>();
+
             ViewBag.ImageUrl = imageurl;
             ViewBag.Category = name;
 
@@ -110,48 +120,99 @@ namespace MVC.Budget.JsPeanut.Controllers
                 CategorySelectList = categoryselectlist_,
                 CurrencySelectList = currencyselectlist_
             };
+
             return View(transactionViewModel);
         }
 
-        public IActionResult UpdateTransaction(Models.Transaction transaction, CategoryViewModel cvm)
+        public IActionResult UpdateTransaction(Models.TransactionInputModel transactionInputModel, CategoryViewModel cvm)
         {
-            var existingTransaction = _context.Transactions.Find(transaction.Id);
-            if (existingTransaction != null)
+			ModelState.Remove("Categories");
+			ModelState.Remove("Transactions");
+			ModelState.Remove("CategorySelectList");
+			ModelState.Remove("CurrencySelectList");
+			ModelState.Remove("CurrentUser");
+			ModelState.Remove("CurrencyObjectJson");
+			if (!ModelState.IsValid)
+			{
+				TempData["error"] = "Something went wrong, your transaction wasn't updated";
+
+				return RedirectToAction("Index", "Transactions");
+			}
+            try
             {
-                existingTransaction.Date = transaction.Date;
-                existingTransaction.Name = transaction.Name;
-                existingTransaction.CategoryId = transaction.CategoryId;
-                existingTransaction.Value = transaction.Value;
-                existingTransaction.Category = transaction.Category;
+                var transaction = new Transaction
+                {
+                    Id = transactionInputModel.Id,
+                    Date = transactionInputModel.Date,
+                    Name = transactionInputModel.Name,
+                    CategoryId = transactionInputModel.CategoryId,
+                    Value = transactionInputModel.Value,
+                    Description = transactionInputModel.Description,
+                    UserId = transactionInputModel.UserId
+                };
 
-                _transactionService.UpdateTransaction(existingTransaction);
+                var existingTransaction = _transactionService.GetTransaction(transaction.Id);
 
-                var categories = _categoryService.GetAllCategories();
-                var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
-                //--------------
-                //transactionCategory.TotalValue += transaction.Value;
+				if (existingTransaction != null)
+				{
+					existingTransaction.Date = transaction.Date;
+					existingTransaction.Name = transaction.Name;
+					existingTransaction.CategoryId = transaction.CategoryId;
+					existingTransaction.Value = transaction.Value;
+					existingTransaction.Category = transaction.Category;
 
+					_transactionService.UpdateTransaction(existingTransaction);
 
+					var categories = _categoryService.GetAllCategories();
+					var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
+					var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
+					existingTransaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
+					existingTransaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
+				}
+			}
+            catch (Exception ex)
+            {
+				TempData["error"] = $"Something went wrong, your transaction wasn't updated: {ex.Message}";
 
-                //--------------
+				return RedirectToAction("Index", "Transactions");
+			}
 
+			TempData["success"] = "Transaction updated successfully";
 
-                var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
-                existingTransaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
-                existingTransaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
-            }
-
-            return Redirect("https://localhost:7229");
-        }
+			return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
+		}
 
         [HttpPost]
         public IActionResult DeleteTransaction(int id)
         {
-            var transaction = _transactionService.GetAllTransactions().Find(x => x.Id == id);
+			ModelState.Remove("Categories");
+			ModelState.Remove("Transactions");
+			ModelState.Remove("CategorySelectList");
+			ModelState.Remove("CurrencySelectList");
+			ModelState.Remove("CurrentUser");
+			ModelState.Remove("CurrencyObjectJson");
+			if (!ModelState.IsValid)
+			{
+				TempData["error"] = "Something went wrong, your transaction wasn't deleted";
 
-            _transactionService.DeleteTransaction(transaction);
+				return RedirectToAction("Index", "Transactions");
+			}
+            try
+            {
+				var transaction = _transactionService.GetTransaction(id);
 
-            return RedirectToAction("Index", "Categories");
-        }
+				_transactionService.DeleteTransaction(transaction);
+			}
+            catch (Exception ex)
+            {
+				TempData["error"] = $"Something went wrong, your transaction wasn't deleted: {ex.Message}";
+
+				return RedirectToAction("Index", "Transactions");
+			}
+
+			TempData["success"] = "Transaction deleted successfully";
+
+			return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
+		}
     }
 }

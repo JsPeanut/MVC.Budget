@@ -56,29 +56,29 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <label>Date</label>
-                            <input type="datetime-local" placeholder="Date" asp-for="Transaction.Date">
-                            <span asp-validation-for="Transaction.Date" class="text-danger"></span>
+                            <input type="datetime-local" placeholder="Date" asp-for="TransactionInputModel.Date">
+                            <span asp-validation-for="TransactionInputModel.Date" class="text-danger"></span>
                             <br />
                             <label>Name</label>
-                            <input type="text" placeholder="Name" asp-for="Transaction.Name">
-                            <span asp-validation-for="Transaction.Name" class="text-danger"></span>
+                            <input type="text" placeholder="Name" asp-for="TransactionInputModel.Name">
+                            <span asp-validation-for="TransactionInputModel.Name" class="text-danger"></span>
                             <br />
                             <label>Category</label>
-                            <select asp-for="Transaction.CategoryId" asp-items="Model.CategorySelectList"></select>
+                            <select asp-for="TransactionInputModel.CategoryId" asp-items="Model.CategorySelectList"></select>
                             <br />
                             <label>Value</label>
-                            <input type="number" placeholder="Value" asp-for="Transaction.Value">
-                            <span asp-validation-for="Transaction.Value" class="text-danger"></span>
+                            <input type="number" placeholder="Value" asp-for="TransactionInputModel.Value">
+                            <span asp-validation-for="TransactionInputModel.Value" class="text-danger"></span>
                             <br />
                             <small id="valueHelp" class="form-text text-muted">If you are going to insert a decimal, use a dot as separator</small>
                             <br>
                             <label>Description</label>
-                            <input type="text" placeholder="Description" asp-for="Transaction.Description"/>
-                            <span asp-validation-for="Transaction.Description" class="text-danger"></span>
+                            <input type="text" placeholder="Description" asp-for="TransactionInputModel.Description"/>
+                            <span asp-validation-for="TransactionInputModel.Description" class="text-danger"></span>
                             <br />
                             <label>Currency</label>
                             <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
-                            <input type="hidden" asp-for="Transaction.UserId" value="@userId"/>
+                            <input type="hidden" asp-for="TransactionInputModel.UserId" value="@userId"/>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -295,16 +295,16 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <label>Date</label>
-                            <input type="datetime-local" placeholder="Date" asp-for="Transaction.Date">
-                            <span asp-validation-for="Transaction.Date" class="text-danger"></span>
+                            <input type="datetime-local" placeholder="Date" asp-for="TransactionInputModel.Date">
+                            <span asp-validation-for="TransactionInputModel.Date" class="text-danger"></span>
                             <br />
                             <label>Name</label>
-                            <input type="text" placeholder="Name" asp-for="Transaction.Name">
-                            <span asp-validation-for="Transaction.Name" class="text-danger"></span>
+                            <input type="text" placeholder="Name" asp-for="TransactionInputModel.Name">
+                            <span asp-validation-for="TransactionInputModel.Name" class="text-danger"></span>
                             <br />
                             <label>Category</label>
                             @{
-                                <select id="selectCategory" asp-for="Transaction.CategoryId">
+                                <select id="selectCategory" asp-for="TransactionInputModel.CategoryId">
                                     <option value="@category.Id" selected>@category.Name</option>
                                     @foreach (var item in Model.CategorySelectList.Where(x => x.Text != category.Name))
                                     {
@@ -314,18 +314,18 @@
                             }
                             <br />
                             <label>Value</label>
-                            <input type="decimal" placeholder="Value" asp-for="Transaction.Value">
-                            <span asp-validation-for="Transaction.Value" class="text-danger"></span>
+                            <input type="decimal" placeholder="Value" asp-for="TransactionInputModel.Value">
+                            <span asp-validation-for="TransactionInputModel.Value" class="text-danger"></span>
                             <br />
                             <small id="valueHelp" class="form-text text-muted">If you are going to insert a decimal, use a dot as separator</small>
                             <br>
                             <label>Description</label>
-                            <input type="text" placeholder="Description" asp-for="Transaction.Description" />
-                            <span asp-validation-for="Transaction.Description" class="text-danger"></span>
+                            <input type="text" placeholder="Description" asp-for="TransactionInputModel.Description" />
+                            <span asp-validation-for="TransactionInputModel.Description" class="text-danger"></span>
                             <br />
                             <label>Currency</label>
                             <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
-                            <input type="hidden" asp-for="Transaction.UserId" value="@userId" />
+                            <input type="hidden" asp-for="TransactionInputModel.UserId" value="@userId" />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

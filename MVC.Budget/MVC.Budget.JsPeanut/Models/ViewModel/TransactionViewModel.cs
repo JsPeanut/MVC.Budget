@@ -12,6 +12,6 @@ namespace MVC.Budget.JsPeanut.Models.ViewModel
         public string? SearchStringForName { get; set; }
         public string? FilterByCategoryString { get; set; }
         public string? FilterByDateString { get; set; }
-        public Transaction Transaction { get; set; }
+        public TransactionInputModel TransactionInputModel { get; set; }
     }
 }

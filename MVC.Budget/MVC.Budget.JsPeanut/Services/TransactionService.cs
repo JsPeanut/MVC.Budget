@@ -19,6 +19,12 @@ namespace MVC.Budget.JsPeanut.Services
             return transactions;
         }
 
+        public Models.Transaction GetTransaction(int id)
+        {
+            var transaction = _context.Transactions.Find(id);
+
+            return transaction;
+        }
 
         public void AddTransaction(Models.Transaction transaction)
         {

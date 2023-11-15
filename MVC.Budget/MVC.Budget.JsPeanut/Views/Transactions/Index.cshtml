@@ -4,23 +4,12 @@
 }
 
 <div class="buttons d-flex" id="transactions">
-    @*onclick=" location.href='@Url.Action("Index", "Categories")' *@
     <a button type="button" class="btn btn-success" href="javascript:history.back()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
         </svg>
         Go back to categories
     </a>
-    @*<button type="button" class="btn btn-success dropdown-toggle" id="dropdownMenuButton" width="91.7px" height="38px" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
-        </svg>
-        Filter by
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item filterbycategory" asp-action="Index">Category</a>
-        <a class="dropdown-item filterbycategory" asp-action="Index">Date</a>
-    </div>*@
     <div class="filterandsearch">
         <form class="search" id="transactionsearch" class="ml-auto" style="display: flex;" asp-action="Index" asp-route-searchstringforname="@Model.SearchStringForName" asp-route-filterbycategorystring="@Model.FilterByCategoryString" asp-route-filterbydatestring="@Model.FilterByDateString">
             <div>
@@ -133,17 +122,17 @@
                                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                     <div class="form-group">
                                         <label style="margin-top: 10px; margin-bottom: 20px;">Date</label>
-                                        <input type="datetime-local" placeholder="Date" asp-for="Transaction.Date">
-                                        <span asp-validation-for="Transaction.Date" class="text-danger"></span>
+                                        <input type="datetime-local" placeholder="Date" asp-for="TransactionInputModel.Date">
+                                        <span asp-validation-for="TransactionInputModel.Date" class="text-danger"></span>
                                         <br />
                                         <label style ="margin-top: 10px; margin-bottom: 20px;">Name</label>
-                                        <input type="text" placeholder="Name" asp-for="Transaction.Name">
-                                        <span asp-validation-for="Transaction.Name" class="text-danger"></span>
+                                        <input type="text" placeholder="Name" asp-for="TransactionInputModel.Name">
+                                        <span asp-validation-for="TransactionInputModel.Name" class="text-danger"></span>
                                         <br />
                                             <label style="margin-top: 10px; margin-bottom: 20px;">Category</label>
                                         @{
                                             var categories = Model.Categories;
-                                            <select id="selectCategory" asp-for="Transaction.CategoryId">
+                                            <select id="selectCategory" asp-for="TransactionInputModel.CategoryId">
                                                 {
                                                 <option value="@categories.Where(x => x.Id == transaction.CategoryId).First().Id" selected>@categories.Where(x => x.Id == transaction.CategoryId).First().Name</option>
                                                 @foreach (var item in Model.CategorySelectList.Where(x => x.Text != categories.Where(x => x.Id == transaction.CategoryId).First().Name))
@@ -155,18 +144,18 @@
                                         }
                                         <br />
                                         <label style="margin-top: 10px; margin-bottom: 20px;">Value</label>
-                                        <input type="decimal" placeholder="Value" asp-for="Transaction.Value">
-                                        <span asp-validation-for="Transaction.Value" class="text-danger"></span>
+                                        <input type="decimal" placeholder="Value" asp-for="TransactionInputModel.Value">
+                                        <span asp-validation-for="TransactionInputModel.Value" class="text-danger"></span>
                                         <br />
                                         <small id="valueHelp" class="form-text text-muted">If you are going to insert a decimal, use a dot as separator</small>
                                         <br>
                                         <label style="margin-top: 10px; margin-bottom: 20px;">Description</label>
-                                        <input type="text" placeholder="Description" asp-for="Transaction.Description"/>
-                                        <span asp-validation-for="Transaction.Description" class="text-danger"></span>
+                                        <input type="text" placeholder="Description" asp-for="TransactionInputModel.Description"/>
+                                        <span asp-validation-for="TransactionInputModel.Description" class="text-danger"></span>
                                         <br />
                                         <label style="margin-top: 10px; margin-bottom: 20px;">Currency</label>
                                         <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
-                                        <input type="hidden" asp-for="Transaction.Id" value="@transaction.Id">
+                                        <input type="hidden" asp-for="TransactionInputModel.Id" value="@transaction.Id">
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

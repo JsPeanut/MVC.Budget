@@ -13,6 +13,6 @@ namespace MVC.Budget.JsPeanut.Models.ViewModel
         public string CurrencyObjectJson { get; set; }
         public string? SearchStringOne { get; set; }
         public string? SearchStringTwo { get; set; }
-        public Transaction? Transaction { get; set; }
+        public TransactionInputModel? TransactionInputModel { get; set; }
     }
 }
