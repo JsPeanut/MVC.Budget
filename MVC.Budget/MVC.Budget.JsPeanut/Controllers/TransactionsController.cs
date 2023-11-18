@@ -110,7 +110,7 @@ namespace MVC.Budget.JsPeanut.Controllers
             }
             else
             {
-                transactionsToShow = _transactionService.GetAllTransactions().Where(x => x.CategoryId == id).ToList();
+                transactionsToShow = transactions.Where(x => x.CategoryId == id).ToList();
             }
 
             var transactionViewModel = new TransactionViewModel
@@ -134,7 +134,7 @@ namespace MVC.Budget.JsPeanut.Controllers
 			ModelState.Remove("CurrencyObjectJson");
 			if (!ModelState.IsValid)
 			{
-				TempData["error"] = "Something went wrong, your transaction wasn't updated";
+				TempData["error"] = "Something went wrong, your transaction wasn't updated: Model state is not valid";
 
 				return RedirectToAction("Index", "Transactions");
 			}
@@ -151,24 +151,14 @@ namespace MVC.Budget.JsPeanut.Controllers
                     UserId = transactionInputModel.UserId
                 };
 
-                var existingTransaction = _transactionService.GetTransaction(transaction.Id);
+				var categories = _categoryService.GetAllCategories();
+				var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
+				var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
 
-				if (existingTransaction != null)
-				{
-					existingTransaction.Date = transaction.Date;
-					existingTransaction.Name = transaction.Name;
-					existingTransaction.CategoryId = transaction.CategoryId;
-					existingTransaction.Value = transaction.Value;
-					existingTransaction.Category = transaction.Category;
+				transaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
+				transaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
 
-					_transactionService.UpdateTransaction(existingTransaction);
-
-					var categories = _categoryService.GetAllCategories();
-					var transactionCategory = categories.Where(c => c.Id == transaction.CategoryId).First();
-					var selectedCurrencyOption = JsonSerializer.Deserialize<Currency>(cvm.CurrencyObjectJson);
-					existingTransaction.CurrencyCode = selectedCurrencyOption.CurrencyCode;
-					existingTransaction.CurrencyNativeSymbol = selectedCurrencyOption.NativeSymbol;
-				}
+                _transactionService.UpdateTransaction(transaction);
 			}
             catch (Exception ex)
             {
@@ -193,7 +183,7 @@ namespace MVC.Budget.JsPeanut.Controllers
 			ModelState.Remove("CurrencyObjectJson");
 			if (!ModelState.IsValid)
 			{
-				TempData["error"] = "Something went wrong, your transaction wasn't deleted";
+				TempData["error"] = "Something went wrong, your transaction wasn't deleted: Model state is not valid";
 
 				return RedirectToAction("Index", "Transactions");
 			}

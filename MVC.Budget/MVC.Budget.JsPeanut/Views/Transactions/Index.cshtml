@@ -1,5 +1,12 @@
-﻿@model MVC.Budget.JsPeanut.Models.ViewModel.TransactionViewModel;
+﻿@using MVC.Budget.JsPeanut.Areas.Identity.Data;
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@model MVC.Budget.JsPeanut.Models.ViewModel.TransactionViewModel;
 @{
+    ViewBag.Title = "Index";
+    var userId = UserManager.GetUserId(User);
+    var user = UserManager.FindByIdAsync(userId).Result;
     ViewBag.Title = "Index";
 }
 
@@ -156,6 +163,7 @@
                                         <label style="margin-top: 10px; margin-bottom: 20px;">Currency</label>
                                         <select asp-for="CurrencyObjectJson" asp-items="Model.CurrencySelectList"></select>
                                         <input type="hidden" asp-for="TransactionInputModel.Id" value="@transaction.Id">
+                                        <input type="hidden" asp-for="TransactionInputModel.UserId" value="@userId" />
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

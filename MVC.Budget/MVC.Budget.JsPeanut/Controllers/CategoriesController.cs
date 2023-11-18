@@ -182,7 +182,7 @@ namespace MVC.Budget.JsPeanut.Controllers
 				return RedirectToAction("Index", "Categories", new {showUpdatedCurrencyToastr = false});
 			}
 
-            if (updateOrCrud == "update")
+            if (updateOrCrud == "update" && ViewBag.Currency != null)
             {
                 TempData["success"] = "Your default currency was updated successfully!";
 			}
@@ -200,7 +200,7 @@ namespace MVC.Budget.JsPeanut.Controllers
 			ModelState.Remove("CurrencyObjectJson");
 			if (!ModelState.IsValid)
             {
-                TempData["error"] = "Something went wrong, your transaction wasn't added";
+                TempData["error"] = "Something went wrong, your transaction wasn't added: Model state is not valid";
 
 				return RedirectToAction("Index", "Categories", new { showUpdatedCurrencyToastr = false });
 			}
